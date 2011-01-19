@@ -123,7 +123,7 @@
             _quickJoinGame.enabled = false;
 
             var qjr:QuickJoinGameRequest = new QuickJoinGameRequest();
-//            qjr.gameType = PluginConstants.GAME_NAME;
+            qjr.gameType = PluginConstants.GAME_NAME;
             qjr.zoneName = "GameZone";
             qjr.createOnly = false;
             _es.engine.send(qjr);
