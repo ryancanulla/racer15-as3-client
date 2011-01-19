@@ -26,10 +26,10 @@
     import com.electrotank.electroserver5.user.User;
     import com.electrotank.electroserver5.zone.Room;
     import com.electrotank.electroserver5.zone.Zone;
-//    import com.gamebook.dig.PluginConstants;
     import com.litl.lobby.ui.CreateRoomScreen;
     import com.litl.lobby.ui.MyTextLabel;
     import com.litl.lobby.ui.PopuupBackground;
+    import com.litl.racer15.PluginConstants;
 
     import fl.controls.Button;
     import fl.controls.List;
@@ -169,8 +169,7 @@
 
             //create search criteria that will filter the game list
             var criteria:SearchCriteria = new SearchCriteria();
-// Add in game type
-//            criteria.gameType = PluginConstants.GAME_NAME;
+            criteria.gameType = PluginConstants.GAME_NAME;
             criteria.gameId = -1;
 
             //add the search criteria to the request
