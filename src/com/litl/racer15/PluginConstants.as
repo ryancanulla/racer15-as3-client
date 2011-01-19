@@ -10,8 +10,8 @@
 
         // actions
         public static const ACTION:String = "a";
-        public static const DIG_HERE:String = "d";
-        public static const DONE_DIGGING:String = "dd";
+        //public static const DIG_HERE:String = "d";
+        //public static const DONE_DIGGING:String = "dd";
         public static const INIT_ME:String = "i";
         public static const PLAYER_LIST:String = "ul";
         public static const ADD_PLAYER:String = "au";
@@ -24,8 +24,8 @@
         public static const START_GAME:String = "sg";
 
         // parameters
-        public static const ITEM_FOUND:String = "f";
-        public static const ITEM_ID:String = "id";
+        //public static const ITEM_FOUND:String = "f";
+        //public static const ITEM_ID:String = "id";
         public static const NAME:String = "n";
         public static const SCORE:String = "s";
         public static const X:String = "x";
@@ -36,8 +36,8 @@
         public static const TIME_STAMP:String = "tm";
 
         //errors
-        public static const SPOT_ALREADY_DUG:String = "SpotAlreadyDug";
-        public static const ALREADY_DIGGING:String = "AlreadyDigging";
+        //public static const SPOT_ALREADY_DUG:String = "SpotAlreadyDug";
+        //public static const ALREADY_DIGGING:String = "AlreadyDigging";
         public static const GAME_IS_OVER:String = "GameIsOver";
 
         //Local constants
