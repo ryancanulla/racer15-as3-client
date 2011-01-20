@@ -181,12 +181,10 @@ package com.litl.racer15
                     trace("handlePlayerList(esob);");
                     break;
                 case PluginConstants.START_COUNTDOWN:
-                    //handleStartCountdown(esob);
-                    trace("start countdown");
+                    handleStartCountdown(esob);
                     break;
                 case PluginConstants.STOP_COUNTDOWN:
-                    //handleStopCountdown(esob);
-                    trace("stop countdown");
+                    handleStopCountdown(esob);
                     break;
                 case PluginConstants.START_GAME:
                     //handleStartGame(esob);
@@ -285,10 +283,66 @@ package com.litl.racer15
 
             for (var i:int = 0; i < _playerManager.players.length; ++i) {
                 var p:Player = _playerManager.players[i];
-                dp.addItem({ label: p.name + ", score: " + p.score.toString(), data: p });
+                //dp.addItem({ label: p.name + ", position: " + p.score.toString(), data: p });
+                dp.addItem({ label: p.name + ", position: " + (i + 1).toString(), data: p });
             }
 
             _playerListUI.dataProvider = dp;
+        }
+
+        private function handleStartCountdown(esob:EsObject):void {
+            if (_waitingField != null) {
+                removeChild(_waitingField);
+                _waitingField = null;
+            }
+
+            _secondsLeft = esob.getInteger(PluginConstants.COUNTDOWN_LEFT);
+            trace("secondsLeft: " + _secondsLeft.toString());
+
+            _countdownField = new TextField();
+            addChild(_countdownField);
+
+            _countdownField.x = 320;
+            _countdownField.y = 200;
+            _countdownField.selectable = false;
+
+            _countdownField.autoSize = TextFieldAutoSize.CENTER;
+
+            var tf:TextFormat = new TextFormat();
+            tf.size = 80;
+            tf.bold = true;
+            tf.font = "Arial";
+            tf.color = 0xFFFFFF;
+
+            _countdownField.defaultTextFormat = tf;
+            _countdownField.text = _secondsLeft.toString();
+
+            _countdownField.filters = [ new GlowFilter(0x009900), new DropShadowFilter()];
+
+            _countdownTimer = new Timer(1000);
+            _countdownTimer.start();
+            _countdownTimer.addEventListener(TimerEvent.TIMER, onCountdownTimer);
+
+        }
+
+        private function handleStopCountdown(esob:EsObject):void {
+            if (_countdownTimer != null) {
+                _countdownTimer.stop();
+                _countdownTimer.removeEventListener(TimerEvent.TIMER, onCountdownTimer);
+                _countdownTimer = null;
+
+                removeChild(_countdownField);
+                _countdownField = null;
+
+                if (_playerManager.players.length == 1) {
+                    createWaitingField();
+                }
+            }
+        }
+
+        private function onCountdownTimer(e:TimerEvent):void {
+            --_secondsLeft;
+            _countdownField.text = _secondsLeft.toString();
         }
 
         public function set es(value:ElectroServer):void {
