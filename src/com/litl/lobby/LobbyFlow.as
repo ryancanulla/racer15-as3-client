@@ -1,16 +1,17 @@
 ﻿package com.litl.lobby
 {
     import com.electrotank.electroserver5.ElectroServer;
-    import com.electrotank.electroserver5.api.ErrorType;
     import com.electrotank.electroserver5.api.ConnectionClosedEvent;
     import com.electrotank.electroserver5.api.ConnectionResponse;
-    import com.electrotank.electroserver5.api.MessageType;
+    import com.electrotank.electroserver5.api.ErrorType;
     import com.electrotank.electroserver5.api.LoginRequest;
     import com.electrotank.electroserver5.api.LoginResponse;
+    import com.electrotank.electroserver5.api.MessageType;
     import com.electrotank.electroserver5.zone.Room;
-    //import com.gamebook.dig.DigGame;
     import com.litl.lobby.ui.ErrorScreen;
     import com.litl.lobby.ui.LoginScreen;
+    import com.litl.racer15.Racer15Game;
+
     import flash.display.Loader;
     import flash.display.MovieClip;
     import flash.events.Event;
@@ -27,7 +28,7 @@
         private var _es:ElectroServer;
         private var _lobby:Lobby;
 
-        //private var _game:DigGame;
+        private var _game:Racer15Game;
 
         public function LobbyFlow() {
             initialize();
@@ -60,16 +61,16 @@
          */
         private function onJoinedGame(e:Event):void {
             //create a new game and give it the ElectroServer reference as well as a room
-//            _game = new DigGame();
-//            _game.es = _es;
-//            _game.room = _lobby.gameRoom;
+            _game = new Racer15Game();
+            _game.es = _es;
+            _game.room = _lobby.gameRoom;
 
             //listen for when the game is done
-//            _game.addEventListener(DigGame.BACK_TO_LOBBY, onDigGameBackToLobby);
+            _game.addEventListener(Racer15Game.BACK_TO_LOBBY, onDigGameBackToLobby);
 
             //initialize the game and add it to the screen
-//            _game.initialize();
-//            addChild(_game);
+            _game.initialize();
+            addChild(_game);
 
             //tell the lobby it is about to be removed (it will clean up), then remove it
             _lobby.destroy();
@@ -82,10 +83,10 @@
          */
         private function onDigGameBackToLobby(e:Event):void {
             //destroy and remove the game
-//            _game.destroy();
-//            removeChild(_game);
-//            _game.removeEventListener(DigGame.BACK_TO_LOBBY, onDigGameBackToLobby);
-//            _game = null;
+            _game.destroy();
+            removeChild(_game);
+            _game.removeEventListener(Racer15Game.BACK_TO_LOBBY, onDigGameBackToLobby);
+            _game = null;
 
             //create the lobby
             createLobby();
