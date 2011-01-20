@@ -136,6 +136,17 @@ package com.litl.racer15
             sendToPlugin(esob);
         }
 
+        private function sendMyPosition():void {
+            _lastTimeSent = getTimer();
+
+            var esob:EsObject = new EsObject();
+            esob.setString(PluginConstants.ACTION, PluginConstants.POSITION_UPDATE);
+            esob.setInteger(PluginConstants.X, _car.x);
+            esob.setInteger(PluginConstants.Y, _car.y);
+
+            sendToPlugin(esob);
+        }
+
         /**
          * Sends formatted EsObjects to the DigGame plugin
          */
