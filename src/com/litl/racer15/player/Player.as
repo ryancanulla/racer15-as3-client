@@ -1,12 +1,7 @@
 ﻿package com.litl.racer15.player
 {
+    import com.litl.racer15.elements.Car;
 
-    //import com.gamebook.dig.elements.Trowel;
-
-    /**
-     * ...
-     * @author Jobe Makar - jobe@electrotank.com
-     */
     public class Player
     {
 

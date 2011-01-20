@@ -196,11 +196,9 @@ package com.litl.racer15
                     break;
                 case PluginConstants.ADD_PLAYER:
                     handleAddPlayer(esob);
-                    trace("handleAddPlayer(esob);");
                     break;
                 case PluginConstants.REMOVE_PLAYER:
                     handleRemovePlayer(esob);
-                    trace("handleRemovePlayer(esob);");
                     break;
                 case PluginConstants.ERROR:
                     //handleError(esob);
