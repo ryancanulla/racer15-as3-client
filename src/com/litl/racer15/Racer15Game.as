@@ -1,12 +1,17 @@
 package com.litl.racer15
 {
     import com.electrotank.electroserver5.ElectroServer;
+    import com.electrotank.electroserver5.api.EsObject;
+    import com.electrotank.electroserver5.api.LeaveRoomRequest;
     import com.electrotank.electroserver5.api.MessageType;
+    import com.electrotank.electroserver5.api.PluginMessageEvent;
+    import com.electrotank.electroserver5.api.PluginRequest;
     import com.electrotank.electroserver5.zone.Room;
     import com.litl.racer15.player.Player;
     import com.litl.racer15.player.PlayerManager;
 
     import fl.controls.List;
+    import fl.data.DataProvider;
 
     import flash.display.Sprite;
     import flash.events.Event;
@@ -18,6 +23,8 @@ package com.litl.racer15
 
     public class Racer15Game extends Sprite
     {
+        public static const BACK_TO_LOBBY:String = "backToLobby";
+
         private var _es:ElectroServer;
         private var _room:Room;
         private var _playerManager:PlayerManager;
@@ -75,14 +82,11 @@ package com.litl.racer15
             //Mouse.hide();
 
             _es.engine.addEventListener(MessageType.PluginMessageEvent.name, onPluginMessageEvent);
-
             _myUsername = _es.managerHelper.userManager.me.userName;
-
             _playerManager = new PlayerManager();
 
-            //createWaitingField();
-
-            //sendInitializeMe();
+            createWaitingField();
+            sendInitializeMe();
         }
 
         private function createWaitingField():void {
@@ -108,7 +112,6 @@ package com.litl.racer15
         private function run(e:Event):void {
             if (getTimer() - _lastTimeSent > 500 && _okToSendMousePosition) {
                 //sendMousePosition();
-
                 //send my position
             }
 
@@ -120,5 +123,168 @@ package com.litl.racer15
                 }
             }
         }
+
+        private function sendInitializeMe():void {
+            //tell the plugin that you're ready
+            var esob:EsObject = new EsObject();
+            esob.setString(PluginConstants.ACTION, PluginConstants.INIT_ME);
+
+            //send to the plugin
+            sendToPlugin(esob);
+        }
+
+        /**
+         * Sends formatted EsObjects to the DigGame plugin
+         */
+        private function sendToPlugin(esob:EsObject):void {
+            //build the request
+            var pr:PluginRequest = new PluginRequest();
+            pr.parameters = esob;
+            pr.roomId = _room.id;
+            pr.zoneId = _room.zoneId;
+            pr.pluginName = PluginConstants.PLUGIN_NAME;
+
+            //send it
+            _es.engine.send(pr);
+        }
+
+        /**
+         * Called when a message is received from a plugin
+         */
+        public function onPluginMessageEvent(e:PluginMessageEvent):void {
+            var esob:EsObject = e.parameters;
+
+            //get the action which determines what we do next
+            var action:String = esob.getString(PluginConstants.ACTION);
+
+            switch (action) {
+                case PluginConstants.POSITION_UPDATE:
+                    //handlePositionUpdate(esob);
+                    trace("handle position");
+                    break;
+                case PluginConstants.PLAYER_LIST:
+                    handlePlayerList(esob);
+                    trace("handlePlayerList(esob);");
+                    break;
+                case PluginConstants.START_COUNTDOWN:
+                    //handleStartCountdown(esob);
+                    trace("start countdown");
+                    break;
+                case PluginConstants.STOP_COUNTDOWN:
+                    //handleStopCountdown(esob);
+                    trace("stop countdown");
+                    break;
+                case PluginConstants.START_GAME:
+                    //handleStartGame(esob);
+                    trace("start game");
+                    break;
+                case PluginConstants.GAME_OVER:
+                    //handleGameOver(esob);
+                    trace("game over");
+                    break;
+                case PluginConstants.ADD_PLAYER:
+                    handleAddPlayer(esob);
+                    trace("handleAddPlayer(esob);");
+                    break;
+                case PluginConstants.REMOVE_PLAYER:
+                    handleRemovePlayer(esob);
+                    trace("handleRemovePlayer(esob);");
+                    break;
+                case PluginConstants.ERROR:
+                    //handleError(esob);
+                    trace("error");
+                    break;
+                default:
+                    trace("Action not handled: " + action);
+            }
+        }
+
+        public function destroy():void {
+            _es.engine.addEventListener(MessageType.PluginMessageEvent.name, onPluginMessageEvent);
+
+            var lrr:LeaveRoomRequest = new LeaveRoomRequest();
+            lrr.roomId = _room.id;
+            lrr.zoneId = _room.zoneId;
+
+            _es.engine.send(lrr);
+        }
+
+        /**
+         * Parse the player list
+         */
+        private function handlePlayerList(esob:EsObject):void {
+            var players:Array = esob.getEsObjectArray(PluginConstants.PLAYER_LIST);
+
+            for (var i:int = 0; i < players.length; ++i) {
+                var player_esob:EsObject = players[i];
+
+                var p:Player = new Player();
+                p.name = player_esob.getString(PluginConstants.NAME);
+                p.score = player_esob.getInteger(PluginConstants.SCORE);
+                p.isMe = p.name == _myUsername;
+
+                if (!p.isMe) {
+                    // add car
+                    //addChild(p.trowel);
+                }
+
+                _playerManager.addPlayer(p);
+            }
+            refreshPlayerList();
+        }
+
+        /**
+         * Remove a player
+         */
+        private function handleRemovePlayer(esob:EsObject):void {
+            var name:String = esob.getString(PluginConstants.NAME);
+            var player:Player = _playerManager.playerByName(name);
+
+            if (!player.isMe) {
+                // remove car
+                //removeChild(player.trowel);
+            }
+            _playerManager.removePlayer(name);
+            refreshPlayerList();
+        }
+
+        /**
+         * Add a player
+         */
+        private function handleAddPlayer(esob:EsObject):void {
+            var p:Player = new Player();
+            p.name = esob.getString(PluginConstants.NAME);
+            p.score = 0;
+            p.isMe = p.name == _myUsername;
+
+            if (!p.isMe) {
+                //addChild(p.trowel);
+            }
+
+            _playerManager.addPlayer(p);
+
+            refreshPlayerList();
+        }
+
+        private function refreshPlayerList():void {
+            var dp:DataProvider = new DataProvider();
+
+            for (var i:int = 0; i < _playerManager.players.length; ++i) {
+                var p:Player = _playerManager.players[i];
+                dp.addItem({ label: p.name + ", score: " + p.score.toString(), data: p });
+            }
+
+            _playerListUI.dataProvider = dp;
+        }
+
+        public function set es(value:ElectroServer):void {
+            _es = value;
+        }
+
+        public function set room(value:Room):void {
+            _room = value;
+        }
+
     }
+
 }
