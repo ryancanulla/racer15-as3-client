@@ -14,11 +14,11 @@
         private var _name:String;
         private var _isMe:Boolean;
 
-        //private var _trowel:Trowel;
+        private var _car:Car;
 
         public function Player() {
             _isMe = false;
-            //_trowel = new Trowel();
+            _car = new Car();
         }
 
         public function get score():int {
@@ -45,7 +45,9 @@
             _isMe = value;
         }
 
-        //public function get trowel():Trowel { return _trowel; }
+        public function get car():Car {
+            return _car;
+        }
     }
 
 }

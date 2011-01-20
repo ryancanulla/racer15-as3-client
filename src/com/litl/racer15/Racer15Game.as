@@ -7,6 +7,8 @@ package com.litl.racer15
     import com.electrotank.electroserver5.api.PluginMessageEvent;
     import com.electrotank.electroserver5.api.PluginRequest;
     import com.electrotank.electroserver5.zone.Room;
+    import com.litl.racer15.elements.Background;
+    import com.litl.racer15.elements.Car;
     import com.litl.racer15.player.Player;
     import com.litl.racer15.player.PlayerManager;
 
@@ -15,6 +17,9 @@ package com.litl.racer15
 
     import flash.display.Sprite;
     import flash.events.Event;
+    import flash.events.TimerEvent;
+    import flash.filters.DropShadowFilter;
+    import flash.filters.GlowFilter;
     import flash.text.TextField;
     import flash.text.TextFieldAutoSize;
     import flash.text.TextFormat;
@@ -31,7 +36,7 @@ package com.litl.racer15
         private var _playerListUI:List;
 
         private var _itemsHolder:Sprite;
-        //private var _trowel:Trowel;
+        private var _car:Car;
 
         private var _myUsername:String;
 
@@ -60,8 +65,10 @@ package com.litl.racer15
             addEventListener(Event.ENTER_FRAME, run);
 
             //add a background
-            //var bg:Background = new Background();
-            //addChild(bg);
+            var track:Background = new Background();
+            track.x -= track.width - 1500;
+            track.y -= track.height - 475;
+            addChild(track);
 
             //add the player list UI
             _playerListUI = new List();
@@ -75,11 +82,8 @@ package com.litl.racer15
             //addChild(_itemsHolder);
 
             //add mouse follower
-            //_trowel = new Trowel();
-            //addChild(_trowel);
-
-            //hide the mouse
-            //Mouse.hide();
+            _car = new Car();
+            addChild(_car);
 
             _es.engine.addEventListener(MessageType.PluginMessageEvent.name, onPluginMessageEvent);
             _myUsername = _es.managerHelper.userManager.me.userName;
@@ -111,15 +115,14 @@ package com.litl.racer15
 
         private function run(e:Event):void {
             if (getTimer() - _lastTimeSent > 500 && _okToSendMousePosition) {
-                //sendMousePosition();
-                //send my position
+                sendMyPosition();
             }
 
             for (var i:int = 0; i < _playerManager.players.length; ++i) {
                 var p:Player = _playerManager.players[i];
 
                 if (!p.isMe) {
-                    //p.trowel.run();
+                    p.car.run();
                 }
             }
         }
@@ -225,7 +228,7 @@ package com.litl.racer15
 
                 if (!p.isMe) {
                     // add car
-                    //addChild(p.trowel);
+                    addChild(p.car);
                 }
 
                 _playerManager.addPlayer(p);
@@ -242,7 +245,7 @@ package com.litl.racer15
 
             if (!player.isMe) {
                 // remove car
-                //removeChild(player.trowel);
+                removeChild(player.car);
             }
             _playerManager.removePlayer(name);
             refreshPlayerList();
@@ -258,7 +261,7 @@ package com.litl.racer15
             p.isMe = p.name == _myUsername;
 
             if (!p.isMe) {
-                //addChild(p.trowel);
+                addChild(p.car);
             }
 
             _playerManager.addPlayer(p);
