@@ -1,34 +1,32 @@
 ﻿package com.litl.racer15.player
 {
-    import com.litl.racer15.elements.Car;
+    import flash.display.Bitmap;
+    import flash.display.MovieClip;
+    import flash.display.Sprite;
 
-    public class Player
+    public class Player extends Sprite
     {
-
-        private var _score:int;
+        private var _rank:int;
         private var _name:String;
         private var _isMe:Boolean;
 
-        private var _car:Car;
-
         public function Player() {
             _isMe = false;
-            _car = new Car();
         }
 
-        public function get score():int {
-            return _score;
+        public function get ranking():int {
+            return _rank;
         }
 
-        public function set score(value:int):void {
-            _score = value;
+        public function set ranking(value:int):void {
+            _rank = value;
         }
 
-        public function get name():String {
+        override public function get name():String {
             return _name;
         }
 
-        public function set name(value:String):void {
+        override public function set name(value:String):void {
             _name = value;
         }
 
@@ -38,10 +36,6 @@
 
         public function set isMe(value:Boolean):void {
             _isMe = value;
-        }
-
-        public function get car():Car {
-            return _car;
         }
     }
 
