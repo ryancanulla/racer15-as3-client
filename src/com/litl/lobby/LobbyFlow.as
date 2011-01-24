@@ -11,6 +11,7 @@
     import com.litl.lobby.ui.ErrorScreen;
     import com.litl.lobby.ui.LoginScreen;
     import com.litl.racer15.Racer15Game;
+    import com.litl.utils.network.clock.Clock;
 
     import flash.display.Loader;
     import flash.display.MovieClip;
@@ -26,6 +27,7 @@
     {
 
         private var _es:ElectroServer;
+        private var _clock:Clock;
         private var _lobby:Lobby;
 
         private var _game:Racer15Game;
@@ -63,6 +65,7 @@
             //create a new game and give it the ElectroServer reference as well as a room
             _game = new Racer15Game();
             _game.es = _es;
+            _game.clock = _clock;
             _game.room = _lobby.gameRoom;
 
             //listen for when the game is done
@@ -158,11 +161,27 @@
          */
         public function onLoginResponse(e:LoginResponse):void {
             if (e.successful) {
-                createLobby();
+                initClock();
             }
             else {
                 showError(e.error.name);
             }
+        }
+
+        private function initClock():void {
+
+            var ts:Clock = new Clock(_es, "TimeStampPlugin");
+            ts.start();
+
+            ts.addEventListener(Clock.CLOCK_READY, onClockReady);
+
+        }
+
+        private function onClockReady(e:Event):void {
+            var serverClock:Clock = e.target as Clock;
+            _clock = serverClock;
+
+            createLobby();
         }
 
         public function onConnectionClosed(e:ConnectionClosedEvent):void {
