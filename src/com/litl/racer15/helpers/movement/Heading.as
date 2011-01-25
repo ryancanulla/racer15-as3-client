@@ -1,4 +1,4 @@
-package com.litl.racer15.player.movement
+package com.litl.racer15.helpers.movement
 {
 
     public class Heading
