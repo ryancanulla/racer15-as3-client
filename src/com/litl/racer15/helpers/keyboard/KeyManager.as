@@ -1,4 +1,4 @@
-package com.litl.racer15.keyboard
+package com.litl.racer15.helpers.keyboard
 {
     import com.litl.racer15.player.Player;
 
