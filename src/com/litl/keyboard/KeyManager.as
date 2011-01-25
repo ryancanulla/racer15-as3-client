@@ -1,6 +1,6 @@
 package com.litl.keyboard
 {
-    import com.litl.racer15.gameobjects.Car;
+    import com.litl.racer15.player.Player;
 
     import flash.display.Sprite;
     import flash.events.Event;
@@ -8,14 +8,16 @@ package com.litl.keyboard
 
     public class KeyManager extends Sprite
     {
-        private var _car:Car;
+        private var _car:Player;
         private var _accelerate:Boolean;
         private var _brake:Boolean;
-        private var _left:Boolean;
-        private var _right:Boolean;
+        private var _turningLeft:Boolean;
+        private var _turningRight:Boolean;
+        private var _turnStrength:Number;
 
-        public function KeyManager(car:Car) {
+        public function KeyManager(car:Player) {
             _car = car;
+            _turnStrength = 2;
             addEventListener(Event.ADDED_TO_STAGE, init);
         }
 
@@ -25,15 +27,19 @@ package com.litl.keyboard
         }
 
         private function onKeyDown(e:KeyboardEvent):void {
+            trace("key down");
+
             switch (e.keyCode) {
                 case 37: // TURN LEFT
-                    _car.turnLeft();
+                    _turningLeft = true;
+                    _turnStrength += 4;
                     break;
                 case 38: // ACCELERATE
                     _accelerate = true;
                     break;
                 case 39: // TURN RIGHT
-                    _car.turnRight();
+                    _turningRight = true;
+                    _turnStrength += 4;
                     break;
                 case 40: // BRAKE
                     _brake = true;
@@ -44,13 +50,15 @@ package com.litl.keyboard
         private function onKeyUp(e:KeyboardEvent):void {
             switch (e.keyCode) {
                 case 37: // STOP TURN LEFT
-                    _left = false;
+                    _turningLeft = false;
+                    _turnStrength = 2;
                     break;
                 case 38: // STOP ACCELERATE
                     _accelerate = false;
                     break;
                 case 39: // STOP TURN RIGHT
-                    _right = false;
+                    _turningRight = false;
+                    _turnStrength = 2;
                     break;
                 case 40: // STOP BRAKE
                     _brake = false;
@@ -67,11 +75,15 @@ package com.litl.keyboard
         }
 
         public function get isTurningLeft():Boolean {
-            return _left;
+            return _turningLeft;
         }
 
         public function get isTurningRight():Boolean {
-            return _right;
+            return _turningRight;
+        }
+
+        public function get turnStrength():Number {
+            return _turnStrength;
         }
 
     }
