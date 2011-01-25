@@ -8,10 +8,12 @@ package com.litl.racer15
     import com.electrotank.electroserver5.api.PluginRequest;
     import com.electrotank.electroserver5.zone.Room;
     import com.litl.racer15.gameobjects.Background;
-    import com.litl.racer15.gameobjects.Car;
     import com.litl.racer15.player.Player;
+    import com.litl.racer15.player.PlayerBase;
     import com.litl.racer15.player.PlayerManager;
     import com.litl.racer15.player.movement.Heading;
+    import com.litl.racer15.track.Track1;
+    import com.litl.racer15.track.TrackBase;
     import com.litl.utils.network.clock.Clock;
 
     import fl.controls.List;
@@ -41,11 +43,11 @@ package com.litl.racer15
         private var _playerListUI:List;
 
         private var _itemsHolder:Sprite;
-        private var _myPlayer:Car;
+        private var _myPlayer:Player;
         private var _maxSpeed:Number;
 
         private var _myUsername:String;
-        private var _myUserInfo:Player;
+        private var _myUserInfo:PlayerBase;
 
         private var _countdownField:TextField;
         private var _countdownTimer:Timer;
@@ -84,7 +86,7 @@ package com.litl.racer15
             _myUsername = _es.managerHelper.userManager.me.userName;
             _playerManager = new PlayerManager();
 
-            _myPlayer = new Car;
+            _myPlayer = new Player;
             _myPlayer.time = _clock.time;
             _myPlayer.name = _myUsername;
             addChild(_myPlayer);
@@ -121,7 +123,7 @@ package com.litl.racer15
             }
 
             for (var i:int = 0; i < _playerManager.players.length; ++i) {
-                var p:Car = _playerManager.players[i];
+                var p:Player = _playerManager.players[i];
 
                 if (!p.isMe) {
                     p.run();
@@ -226,7 +228,7 @@ package com.litl.racer15
             for (var i:int = 0; i < players.length; ++i) {
                 var player_esob:EsObject = players[i];
 
-                var p:Car = new Car();
+                var p:Player = new Player();
                 p.name = player_esob.getString(PluginConstants.NAME);
                 p.ranking = player_esob.getInteger(PluginConstants.RANKING);
                 p.isMe = p.name == _myUsername;
@@ -247,7 +249,7 @@ package com.litl.racer15
          */
         private function handleRemovePlayer(esob:EsObject):void {
             var name:String = esob.getString(PluginConstants.NAME);
-            var player:Player = _playerManager.playerByName(name);
+            var player:PlayerBase = _playerManager.playerByName(name);
 
             if (!player.isMe) {
                 // remove car
@@ -261,7 +263,7 @@ package com.litl.racer15
          * Add a player
          */
         private function handleAddPlayer(esob:EsObject):void {
-            var p:Car = new Car();
+            var p:Player = new Player();
             p.name = esob.getString(PluginConstants.NAME);
             p.ranking = 0;
             p.isMe = p.name == _myUsername;
@@ -285,7 +287,7 @@ package com.litl.racer15
             var dp:DataProvider = new DataProvider();
 
             for (var i:int = 0; i < _playerManager.players.length; ++i) {
-                var p:Player = _playerManager.players[i];
+                var p:PlayerBase = _playerManager.players[i];
                 //dp.addItem({ label: p.name + ", position: " + p.score.toString(), data: p });
                 dp.addItem({ label: p.name + ", position: " + (i + 1).toString(), data: p });
             }
@@ -354,7 +356,7 @@ package com.litl.racer15
             heading.time = ob.getNumber(PluginConstants.ANGLE);
             heading.speed = ob.getNumber(PluginConstants.SPEED);
 
-            var player:Car = _playerManager.playerByName(name) as Car;
+            var player:Player = _playerManager.playerByName(name) as Player;
 
             // im not tracking mirrors right now
             if (name == _myUsername) {
@@ -364,7 +366,7 @@ package com.litl.racer15
 
             if (player == null) {
                 // add the player to the stage
-                var newPlayer:Car = new Car();
+                var newPlayer:Player = new Player();
                 addChild(newPlayer);
             }
 
