@@ -391,6 +391,10 @@ package com.litl.racer15
             _room = value;
         }
 
+        public function set clock(value:Clock):void {
+            _clock = value;
+        }
+
     }
 
 }
