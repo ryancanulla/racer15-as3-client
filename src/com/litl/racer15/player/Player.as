@@ -6,9 +6,9 @@
 
     public class Player extends Sprite
     {
-        private var _rank:int;
-        private var _name:String;
-        private var _isMe:Boolean;
+        protected var _rank:int;
+        protected var _name:String;
+        protected var _isMe:Boolean;
 
         public function Player() {
             _isMe = false;
