@@ -58,6 +58,8 @@ package com.litl.racer15
         private var _okToSend:Boolean;
         private var _waitingField:TextField;
 
+        private var track:TrackBase;
+
         public function Racer15Game() {
 
         }
@@ -67,11 +69,10 @@ package com.litl.racer15
             _lastTimeSent = -1;
             _okToSend = true;
 
-            //add a background
-            var track:Background = new Background();
-            track.x -= track.width - 2700;
-            track.y -= track.height - 900;
+            track = new Track1();
             addChild(track);
+
+            //add a background
 
             //add the player list UI
             _playerListUI = new List();
