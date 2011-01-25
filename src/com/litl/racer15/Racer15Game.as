@@ -261,13 +261,19 @@ package com.litl.racer15
          * Add a player
          */
         private function handleAddPlayer(esob:EsObject):void {
-            var p:Player = new Player();
+            var p:Car = new Car();
             p.name = esob.getString(PluginConstants.NAME);
-            p.score = 0;
+            p.ranking = 0;
             p.isMe = p.name == _myUsername;
+            p.time = _clock.time;
+
+            //p.converger.clock = _clock;
+            if (p.isMe)
+                p.name = "my_mirror";
 
             if (!p.isMe) {
-                addChild(p.car);
+                addChild(p);
+                p.run();
             }
 
             _playerManager.addPlayer(p);
@@ -335,6 +341,41 @@ package com.litl.racer15
                     createWaitingField();
                 }
             }
+        }
+
+        private function handleUpdateHeading(esob:EsObject):void {
+            var ob:EsObject = esob.getEsObject(PluginConstants.HEADING);
+            var name:String = ob.getString(PluginConstants.NAME);
+
+            var heading:Heading = new Heading();
+            heading.x = ob.getNumber(PluginConstants.X);
+            heading.y = ob.getNumber(PluginConstants.Y);
+            heading.angle = ob.getNumber(PluginConstants.ANGLE);
+            heading.time = ob.getNumber(PluginConstants.ANGLE);
+            heading.speed = ob.getNumber(PluginConstants.SPEED);
+
+            var player:Car = _playerManager.playerByName(name) as Car;
+
+            // im not tracking mirrors right now
+            if (name == _myUsername) {
+                name = "my_mirror";
+                player.name = "my_mirror";
+            }
+
+            if (player == null) {
+                // add the player to the stage
+                var newPlayer:Car = new Car();
+                addChild(newPlayer);
+            }
+
+            if (!player.isMe) {
+                player.setHeading(heading);
+
+                if (name == "my_mirror") {
+                    player.alpha = .5;
+                }
+            }
+
         }
 
         private function onCountdownTimer(e:TimerEvent):void {
