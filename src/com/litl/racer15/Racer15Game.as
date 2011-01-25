@@ -114,15 +114,17 @@ package com.litl.racer15
         }
 
         private function run(e:Event):void {
-            if (getTimer() - _lastTimeSent > 500 && _okToSendMousePosition) {
+            _myPlayer.run();
+
+            if (_clock.time - _lastTimeSent > 250 && _myPlayer != null) {
                 sendMyPosition();
             }
 
             for (var i:int = 0; i < _playerManager.players.length; ++i) {
-                var p:Player = _playerManager.players[i];
+                var p:Car = _playerManager.players[i];
 
                 if (!p.isMe) {
-                    p.car.run();
+                    p.run();
                 }
             }
         }
