@@ -7,10 +7,12 @@ package com.litl.racer15
     import com.electrotank.electroserver5.api.PluginMessageEvent;
     import com.electrotank.electroserver5.api.PluginRequest;
     import com.electrotank.electroserver5.zone.Room;
-    import com.litl.racer15.elements.Background;
-    import com.litl.racer15.elements.Car;
+    import com.litl.racer15.gameobjects.Background;
+    import com.litl.racer15.gameobjects.Car;
     import com.litl.racer15.player.Player;
     import com.litl.racer15.player.PlayerManager;
+    import com.litl.racer15.player.movement.Heading;
+    import com.litl.utils.network.clock.Clock;
 
     import fl.controls.List;
     import fl.data.DataProvider;
@@ -23,6 +25,7 @@ package com.litl.racer15
     import flash.text.TextField;
     import flash.text.TextFieldAutoSize;
     import flash.text.TextFormat;
+    import flash.utils.Dictionary;
     import flash.utils.Timer;
     import flash.utils.getTimer;
 
@@ -31,14 +34,18 @@ package com.litl.racer15
         public static const BACK_TO_LOBBY:String = "backToLobby";
 
         private var _es:ElectroServer;
+        private var _clock:Clock;
         private var _room:Room;
+
         private var _playerManager:PlayerManager;
         private var _playerListUI:List;
 
         private var _itemsHolder:Sprite;
-        private var _car:Car;
+        private var _myPlayer:Car;
+        private var _maxSpeed:Number;
 
         private var _myUsername:String;
+        private var _myUserInfo:Player;
 
         private var _countdownField:TextField;
         private var _countdownTimer:Timer;
@@ -46,28 +53,22 @@ package com.litl.racer15
         private var _gameStarted:Boolean;
 
         private var _lastTimeSent:int;
-        private var _okToSendMousePosition:Boolean;
+        private var _okToSend:Boolean;
         private var _waitingField:TextField;
 
         public function Racer15Game() {
-            addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
-        }
 
-        private function onAddedToStage(e:Event):void {
-            // stage.addEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
-            // stage.addEventListener(MouseEvent.MOUSE_MOVE, mouseMoved);
         }
 
         public function initialize():void {
             _gameStarted = false;
             _lastTimeSent = -1;
-            _okToSendMousePosition = true;
-            addEventListener(Event.ENTER_FRAME, run);
+            _okToSend = true;
 
             //add a background
             var track:Background = new Background();
-            track.x -= track.width - 1500;
-            track.y -= track.height - 475;
+            track.x -= track.width - 2700;
+            track.y -= track.height - 900;
             addChild(track);
 
             //add the player list UI
@@ -77,17 +78,16 @@ package com.litl.racer15
             _playerListUI.width = 800 - _playerListUI.x - 10;
             addChild(_playerListUI);
 
-            //create a container for items that are added
-            //_itemsHolder = new MovieClip();
-            //addChild(_itemsHolder);
-
-            //add mouse follower
-            _car = new Car();
-            addChild(_car);
+            addEventListener(Event.ENTER_FRAME, run);
 
             _es.engine.addEventListener(MessageType.PluginMessageEvent.name, onPluginMessageEvent);
             _myUsername = _es.managerHelper.userManager.me.userName;
             _playerManager = new PlayerManager();
+
+            _myPlayer = new Car;
+            _myPlayer.time = _clock.time;
+            _myPlayer.name = _myUsername;
+            addChild(_myPlayer);
 
             createWaitingField();
             sendInitializeMe();
