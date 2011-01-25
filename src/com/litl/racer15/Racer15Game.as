@@ -11,7 +11,7 @@ package com.litl.racer15
     import com.litl.racer15.player.Player;
     import com.litl.racer15.player.PlayerBase;
     import com.litl.racer15.player.PlayerManager;
-    import com.litl.racer15.player.movement.Heading;
+    import com.litl.racer15.helpers.movement.Heading;
     import com.litl.racer15.track.Track1;
     import com.litl.racer15.track.TrackBase;
     import com.litl.utils.network.clock.Clock;

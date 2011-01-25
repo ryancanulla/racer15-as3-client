@@ -5,7 +5,7 @@
     import com.litl.racer15.PluginConstants;
     import com.litl.racer15.gameobjects.CarObject;
     import com.litl.racer15.helpers.keyboard.KeyManager;
-    import com.litl.racer15.player.movement.Heading;
+    import com.litl.racer15.helpers.movement.Heading;
     import com.litl.utils.NumberUtil;
     import com.litl.utils.network.clock.Clock;
     import com.litl.utils.network.movement.Converger;
