@@ -3,13 +3,13 @@ package com.litl.racer15.gameobjects
     import flash.display.Bitmap;
     import flash.display.Sprite;
 
-    public class CarObject extends Sprite
+    public class Car extends Sprite
     {
         [Embed(source="../assets/cars/red-car.png")]
         private var CarClass:Class;
         private var car:Bitmap;
 
-        public function CarObject() {
+        public function Car() {
             car = new CarClass();
             car.smoothing = true;
             car.scaleX = .40;

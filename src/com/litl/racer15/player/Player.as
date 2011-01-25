@@ -3,7 +3,7 @@
     import com.electrotank.electroserver5.api.EsObject;
     import com.hurlant.crypto.symmetric.NullPad;
     import com.litl.racer15.PluginConstants;
-    import com.litl.racer15.gameobjects.CarObject;
+    import com.litl.racer15.gameobjects.Car;
     import com.litl.racer15.helpers.keyboard.KeyManager;
     import com.litl.racer15.helpers.movement.Heading;
     import com.litl.utils.NumberUtil;
@@ -20,7 +20,7 @@
     public class Player extends PlayerBase
     {
         private var keyManager:KeyManager;
-        private var car:CarObject;
+        private var car:Car;
         private var isNotMoving:Boolean;
 
         private var _converger:Converger;
@@ -33,7 +33,7 @@
         public function Player() {
             addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 
-            car = new CarObject();
+            car = new Car();
             addChild(car);
 
             isNotMoving = (_speed == 0);
