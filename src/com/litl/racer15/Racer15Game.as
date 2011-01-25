@@ -139,19 +139,17 @@ package com.litl.racer15
         }
 
         private function sendMyPosition():void {
-            _lastTimeSent = getTimer();
+            if (_myPlayer != null && _okToSend && _myPlayer.time > _lastTimeSent) {
+                _lastTimeSent = _myPlayer.time;
 
-            var esob:EsObject = new EsObject();
-            esob.setString(PluginConstants.ACTION, PluginConstants.POSITION_UPDATE);
-            esob.setInteger(PluginConstants.X, _car.x);
-            esob.setInteger(PluginConstants.Y, _car.y);
+                var esob:EsObject = new EsObject();
+                esob.setString(PluginConstants.ACTION, PluginConstants.UPDATE_HEADING);
+                esob.setEsObject(PluginConstants.HEADING, _myPlayer.heading);
 
-            sendToPlugin(esob);
+                sendToPlugin(esob);
+            }
         }
 
-        /**
-         * Sends formatted EsObjects to the DigGame plugin
-         */
         private function sendToPlugin(esob:EsObject):void {
             //build the request
             var pr:PluginRequest = new PluginRequest();
@@ -174,13 +172,11 @@ package com.litl.racer15
             var action:String = esob.getString(PluginConstants.ACTION);
 
             switch (action) {
-                case PluginConstants.POSITION_UPDATE:
-                    //handlePositionUpdate(esob);
-                    trace("handle position");
+                case PluginConstants.UPDATE_HEADING:
+                    handleUpdateHeading(esob);
                     break;
                 case PluginConstants.PLAYER_LIST:
                     handlePlayerList(esob);
-                    trace("handlePlayerList(esob);");
                     break;
                 case PluginConstants.START_COUNTDOWN:
                     handleStartCountdown(esob);
@@ -230,14 +226,15 @@ package com.litl.racer15
             for (var i:int = 0; i < players.length; ++i) {
                 var player_esob:EsObject = players[i];
 
-                var p:Player = new Player();
+                var p:Car = new Car();
                 p.name = player_esob.getString(PluginConstants.NAME);
-                p.score = player_esob.getInteger(PluginConstants.SCORE);
+                p.ranking = player_esob.getInteger(PluginConstants.RANKING);
                 p.isMe = p.name == _myUsername;
 
+                //p.converger.clock = _clock;
+
                 if (!p.isMe) {
-                    // add car
-                    addChild(p.car);
+                    addChild(p);
                 }
 
                 _playerManager.addPlayer(p);
@@ -254,7 +251,7 @@ package com.litl.racer15
 
             if (!player.isMe) {
                 // remove car
-                removeChild(player.car);
+                removeChild(player);
             }
             _playerManager.removePlayer(name);
             refreshPlayerList();
