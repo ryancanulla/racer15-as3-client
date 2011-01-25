@@ -2,8 +2,9 @@
 {
     import com.electrotank.electroserver5.api.EsObject;
     import com.hurlant.crypto.symmetric.NullPad;
-    import com.litl.keyboard.KeyManager;
     import com.litl.racer15.PluginConstants;
+    import com.litl.racer15.gameobjects.CarObject;
+    import com.litl.racer15.helpers.keyboard.KeyManager;
     import com.litl.racer15.player.movement.Heading;
     import com.litl.utils.NumberUtil;
     import com.litl.utils.network.clock.Clock;
@@ -15,7 +16,6 @@
     import flash.events.Event;
     import flash.geom.Matrix;
     import flash.geom.Point;
-    import com.litl.racer15.gameobjects.CarObject;
 
     public class Player extends PlayerBase
     {
