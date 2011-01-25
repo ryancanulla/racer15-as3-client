@@ -13,17 +13,17 @@
             _playersByName = new Dictionary();
         }
 
-        public function playerByName(name:String):Player {
+        public function playerByName(name:String):PlayerBase {
             return _playersByName[name];
         }
 
-        public function addPlayer(p:Player):void {
+        public function addPlayer(p:PlayerBase):void {
             _players.push(p);
             _playersByName[p.name] = p;
         }
 
         public function removePlayer(name:String):void {
-            var p:Player = _playersByName[name];
+            var p:PlayerBase = _playersByName[name];
             _playersByName[name] = null;
 
             for (var i:int = 0; i < _players.length; ++i) {
