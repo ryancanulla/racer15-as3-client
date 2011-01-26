@@ -8,10 +8,11 @@ package com.litl.racer15
     import com.electrotank.electroserver5.api.PluginRequest;
     import com.electrotank.electroserver5.zone.Room;
     import com.litl.racer15.gameobjects.Background;
+    import com.litl.racer15.helpers.camera.Camera;
+    import com.litl.racer15.helpers.movement.Heading;
     import com.litl.racer15.player.Player;
     import com.litl.racer15.player.PlayerBase;
     import com.litl.racer15.player.PlayerManager;
-    import com.litl.racer15.helpers.movement.Heading;
     import com.litl.racer15.track.Track1;
     import com.litl.racer15.track.TrackBase;
     import com.litl.utils.network.clock.Clock;
@@ -39,7 +40,6 @@ package com.litl.racer15
         private var _clock:Clock;
         private var _room:Room;
 
-        private var _playerManager:PlayerManager;
         private var _playerListUI:List;
 
         private var _itemsHolder:Sprite;
@@ -54,11 +54,11 @@ package com.litl.racer15
         private var _secondsLeft:int;
         private var _gameStarted:Boolean;
 
-        private var _lastTimeSent:int;
         private var _okToSend:Boolean;
         private var _waitingField:TextField;
 
         private var track:TrackBase;
+        private var camera:Camera;
 
         public function Racer15Game() {
 
@@ -66,7 +66,6 @@ package com.litl.racer15
 
         public function initialize():void {
             _gameStarted = false;
-            _lastTimeSent = -1;
             _okToSend = true;
 
             track = new Track1();
@@ -85,12 +84,18 @@ package com.litl.racer15
 
             _es.engine.addEventListener(MessageType.PluginMessageEvent.name, onPluginMessageEvent);
             _myUsername = _es.managerHelper.userManager.me.userName;
-            _playerManager = new PlayerManager();
 
             _myPlayer = new Player;
             _myPlayer.time = _clock.time;
             _myPlayer.name = _myUsername;
-            addChild(_myPlayer);
+            _myPlayer.isMe = true;
+            trace("added my player");
+            track.addPlayer(_myPlayer);
+
+            camera = new Camera();
+            camera.track = track;
+            camera.follow(_myPlayer);
+            addChild(camera);
 
             createWaitingField();
             sendInitializeMe();
@@ -119,12 +124,15 @@ package com.litl.racer15
         private function run(e:Event):void {
             _myPlayer.run();
 
-            if (_clock.time - _lastTimeSent > 250 && _myPlayer != null) {
+            camera.moveCamera();
+
+            if (_clock.time - _myPlayer.lastTimeSent > 250 && _myPlayer != null) {
                 sendMyPosition();
+
             }
 
-            for (var i:int = 0; i < _playerManager.players.length; ++i) {
-                var p:Player = _playerManager.players[i];
+            for (var i:int = 0; i < track.playerManager.players.length; ++i) {
+                var p:Player = track.playerManager.players[i];
 
                 if (!p.isMe) {
                     p.run();
@@ -142,13 +150,14 @@ package com.litl.racer15
         }
 
         private function sendMyPosition():void {
-            if (_myPlayer != null && _okToSend && _myPlayer.time > _lastTimeSent) {
-                _lastTimeSent = _myPlayer.time;
+            if (_myPlayer != null && _okToSend && _clock.time > _myPlayer.lastTimeSent) {
+                _myPlayer.lastTimeSent = _clock.time;
 
                 var esob:EsObject = new EsObject();
                 esob.setString(PluginConstants.ACTION, PluginConstants.UPDATE_HEADING);
                 esob.setEsObject(PluginConstants.HEADING, _myPlayer.heading);
 
+                //trace("send my position: " + _myUsername);
                 sendToPlugin(esob);
             }
         }
@@ -176,7 +185,7 @@ package com.litl.racer15
 
             switch (action) {
                 case PluginConstants.UPDATE_HEADING:
-                    handleUpdateHeading(esob);
+                    //handleUpdateHeading(esob);
                     break;
                 case PluginConstants.PLAYER_LIST:
                     handlePlayerList(esob);
@@ -233,14 +242,12 @@ package com.litl.racer15
                 p.name = player_esob.getString(PluginConstants.NAME);
                 p.ranking = player_esob.getInteger(PluginConstants.RANKING);
                 p.isMe = p.name == _myUsername;
-
-                //p.converger.clock = _clock;
+                p.time = _clock.time;
 
                 if (!p.isMe) {
-                    addChild(p);
+                    track.addPlayer(p);
+                    trace("added player: " + p.name);
                 }
-
-                _playerManager.addPlayer(p);
             }
             refreshPlayerList();
         }
@@ -250,13 +257,11 @@ package com.litl.racer15
          */
         private function handleRemovePlayer(esob:EsObject):void {
             var name:String = esob.getString(PluginConstants.NAME);
-            var player:PlayerBase = _playerManager.playerByName(name);
 
-            if (!player.isMe) {
+            if (!name == _myUsername) {
                 // remove car
-                removeChild(player);
+                track.removePlayer(name);
             }
-            _playerManager.removePlayer(name);
             refreshPlayerList();
         }
 
@@ -271,15 +276,16 @@ package com.litl.racer15
             p.time = _clock.time;
 
             //p.converger.clock = _clock;
-            if (p.isMe)
-                p.name = "my_mirror";
+//            if (p.isMe)
+//                p.name = "my_mirror";
 
             if (!p.isMe) {
-                addChild(p);
+                track.addPlayer(p);
+                trace("added player: " + p.name);
                 p.run();
             }
 
-            _playerManager.addPlayer(p);
+            track.addPlayer(p);
 
             refreshPlayerList();
         }
@@ -287,8 +293,8 @@ package com.litl.racer15
         private function refreshPlayerList():void {
             var dp:DataProvider = new DataProvider();
 
-            for (var i:int = 0; i < _playerManager.players.length; ++i) {
-                var p:PlayerBase = _playerManager.players[i];
+            for (var i:int = 0; i < track.playerManager.players.length; ++i) {
+                var p:PlayerBase = track.playerManager.players[i];
                 //dp.addItem({ label: p.name + ", position: " + p.score.toString(), data: p });
                 dp.addItem({ label: p.name + ", position: " + (i + 1).toString(), data: p });
             }
@@ -340,7 +346,7 @@ package com.litl.racer15
                 removeChild(_countdownField);
                 _countdownField = null;
 
-                if (_playerManager.players.length == 1) {
+                if (track.playerManager.players.length == 1) {
                     createWaitingField();
                 }
             }
@@ -357,26 +363,30 @@ package com.litl.racer15
             heading.time = ob.getNumber(PluginConstants.ANGLE);
             heading.speed = ob.getNumber(PluginConstants.SPEED);
 
-            var player:Player = _playerManager.playerByName(name) as Player;
+            var player:Player = track.playerManager.playerByName(name);
 
-            // im not tracking mirrors right now
-            if (name == _myUsername) {
-                name = "my_mirror";
-                player.name = "my_mirror";
-            }
+            //trace(track.playerManager.playerByName(name).name);
 
             if (player == null) {
                 // add the player to the stage
-                var newPlayer:Player = new Player();
-                addChild(newPlayer);
+                player = new Player();
+                player.setHeading(heading);
+                player.name = name;
+                track.addPlayer(player);
             }
+
+//            if (name == _myUsername) {
+//                name = "my_mirror";
+//                player.name = "my_mirror";
+//            }
 
             if (!player.isMe) {
                 player.setHeading(heading);
+                trace("set player heading: " + player.name);
 
-                if (name == "my_mirror") {
-                    player.alpha = .5;
-                }
+//                if (name == "my_mirror") {
+//                    player.alpha = .5;
+//                }
             }
 
         }
