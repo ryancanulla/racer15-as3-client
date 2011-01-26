@@ -12,8 +12,8 @@ package com.litl.racer15.gameobjects
         public function Car() {
             car = new CarClass();
             car.smoothing = true;
-            car.scaleX = .40;
-            car.scaleY = .40;
+            car.scaleX = .75;
+            car.scaleY = .75;
             car.x -= car.width * .4;
             car.y -= car.height * .5;
             addChild(car);
