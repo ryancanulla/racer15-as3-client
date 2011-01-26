@@ -17,7 +17,7 @@ package com.litl.racer15.helpers.keyboard
 
         public function KeyManager(car:Player) {
             _car = car;
-            _turnStrength = 2;
+            _turnStrength = 1;
             addEventListener(Event.ADDED_TO_STAGE, init);
         }
 
@@ -27,19 +27,17 @@ package com.litl.racer15.helpers.keyboard
         }
 
         private function onKeyDown(e:KeyboardEvent):void {
-            trace("key down");
-
             switch (e.keyCode) {
                 case 37: // TURN LEFT
                     _turningLeft = true;
-                    _turnStrength += 4;
+                    _turnStrength += 2;
                     break;
                 case 38: // ACCELERATE
                     _accelerate = true;
                     break;
                 case 39: // TURN RIGHT
                     _turningRight = true;
-                    _turnStrength += 4;
+                    _turnStrength += 2;
                     break;
                 case 40: // BRAKE
                     _brake = true;
@@ -51,14 +49,14 @@ package com.litl.racer15.helpers.keyboard
             switch (e.keyCode) {
                 case 37: // STOP TURN LEFT
                     _turningLeft = false;
-                    _turnStrength = 2;
+                    _turnStrength = 1;
                     break;
                 case 38: // STOP ACCELERATE
                     _accelerate = false;
                     break;
                 case 39: // STOP TURN RIGHT
                     _turningRight = false;
-                    _turnStrength = 2;
+                    _turnStrength = 1;
                     break;
                 case 40: // STOP BRAKE
                     _brake = false;
