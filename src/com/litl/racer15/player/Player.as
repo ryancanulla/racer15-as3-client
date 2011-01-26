@@ -28,7 +28,6 @@
         private var _friction:Number;
         private var _speed:Number;
         private var _maxSpeed:Number;
-        private var _time:Number;
 
         public function Player() {
             addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
@@ -40,8 +39,8 @@
 
             _direction = 0;
             _speed = 1;
-            _maxSpeed = 15;
-            _friction = .87;
+            _maxSpeed = 25;
+            _friction = .47;
         }
 
         private function onAddedToStage(e:Event):void {
@@ -64,8 +63,7 @@
         }
 
         private function checkDriverInput():void {
-            trace(_direction);
-
+            // calculate steering
             if (keyManager.isTurningLeft) {
                 _direction -= keyManager.turnStrength;
 
@@ -79,27 +77,22 @@
                     _direction = 0;
             }
 
+            // reset rotation if needed
             if (_direction < 0 || _direction > 360)
                 _direction = 0;
 
+            // manage acceleration
             if (keyManager.isAccelerating) {
                 if (_speed < _maxSpeed)
                     _speed += 1;
             }
 
+            // manage braking
             if (keyManager.isBraking) {
                 if (_speed > (_maxSpeed * -.35))
                     _speed -= 1;
             }
 
-        }
-
-        public function get time():Number {
-            return _time;
-        }
-
-        public function set time(e:Number):void {
-            _time = e;
         }
 
         public function get heading():EsObject {
@@ -121,6 +114,14 @@
             _speed = e.speed;
             _direction = e.angle;
             _time = e.time;
+        }
+
+        public function get speed():Number {
+            return _speed;
+        }
+
+        public function get maxSpeed():Number {
+            return _maxSpeed;
         }
 
     }
