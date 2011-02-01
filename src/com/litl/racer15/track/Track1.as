@@ -9,10 +9,13 @@ package com.litl.racer15.track
         [Embed(source="../assets/track-one.png")]
         protected var TrackClass:Class;
 
+        [Embed(source="../assets/track-one/hit-test-objects/track-one-hit.png")]
+        protected var TrackHitTestClass:Class;
+
         public function Track1() {
 
             super();
-            create(TrackClass);
+            create(TrackClass, TrackHitTestClass);
         }
     }
 }
