@@ -1,5 +1,7 @@
 ﻿package com.litl.racer15.player
 {
+    import com.litl.utils.network.clock.Clock;
+
     import flash.display.Bitmap;
     import flash.display.MovieClip;
     import flash.display.Sprite;
@@ -11,11 +13,13 @@
         protected var _isMe:Boolean;
         protected var _time:int;
         protected var _lastTimeSent:int;
+        protected var _position:Number;
 
         public function PlayerBase() {
             _rank = -1;
             _isMe = false;
             _lastTimeSent = -1;
+            _position = -1;
         }
 
         public function get ranking():int {
@@ -58,6 +62,13 @@
             _time = value;
         }
 
+        public function get position():Number {
+            return _position;
+        }
+
+        public function set position(value:Number):void {
+            _position = value;
+        }
     }
 
 }

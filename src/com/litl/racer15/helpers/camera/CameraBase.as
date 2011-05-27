@@ -4,6 +4,7 @@ package com.litl.racer15.helpers.camera
     import com.litl.racer15.track.TrackBase;
 
     import flash.display.Sprite;
+    import flash.events.Event;
 
     public class CameraBase extends Sprite
     {
@@ -14,6 +15,12 @@ package com.litl.racer15.helpers.camera
         protected var _targetPlayer:Player;
 
         public function CameraBase() {
+            addEventListener(Event.ADDED_TO_STAGE, move);
+        }
+
+        private function move(e:Event):void {
+            _track.x += (stage.stageWidth / 2) - (_targetPlayer.x + _track.x);
+            _track.y += (stage.stageHeight / 2) - (_targetPlayer.y + _track.y);
         }
 
         public function follow(e:Player):void {

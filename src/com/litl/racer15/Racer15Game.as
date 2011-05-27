@@ -71,16 +71,12 @@ package com.litl.racer15
             track = new Track1();
             addChild(track);
 
-            //add a background
-
             //add the player list UI
             _playerListUI = new List();
-            _playerListUI.x = 650;
-            _playerListUI.y = 10;
+            _playerListUI.x = this.width * .80;
+            _playerListUI.y = this.height * .10;
             _playerListUI.width = 800 - _playerListUI.x - 10;
             addChild(_playerListUI);
-
-            addEventListener(Event.ENTER_FRAME, run);
 
             _es.engine.addEventListener(MessageType.PluginMessageEvent.name, onPluginMessageEvent);
             _myUsername = _es.managerHelper.userManager.me.userName;
@@ -89,7 +85,6 @@ package com.litl.racer15
             _myPlayer.time = _clock.time;
             _myPlayer.name = _myUsername;
             _myPlayer.isMe = true;
-            trace("added my player");
             track.addPlayer(_myPlayer);
 
             camera = new Camera();
@@ -97,47 +92,27 @@ package com.litl.racer15
             camera.follow(_myPlayer);
             addChild(camera);
 
+            addEventListener(Event.ENTER_FRAME, run);
             createWaitingField();
             sendInitializeMe();
         }
 
-        private function createWaitingField():void {
-            var tf:TextFormat = new TextFormat();
-            tf.size = 30;
-            tf.bold = true;
-            tf.font = "Arial";
-            tf.color = 0xFFFFFF;
-
-            var field:TextField = new TextField();
-            field.x = 320;
-            field.y = 150;
-            field.autoSize = TextFieldAutoSize.CENTER;
-            field.defaultTextFormat = tf;
-
-            field.text = "Waiting for players...";
-
-            _waitingField = field;
-
-            addChild(field);
-        }
-
         private function run(e:Event):void {
-            _myPlayer.run();
 
             camera.moveCamera();
 
             if (_clock.time - _myPlayer.lastTimeSent > 250 && _myPlayer != null) {
                 sendMyPosition();
-
             }
 
-            for (var i:int = 0; i < track.playerManager.players.length; ++i) {
-                var p:Player = track.playerManager.players[i];
+            for (var i:uint = 0; i < track.playerManager.players.length; i++) {
+                var player:Player = track.playerManager.players[i];
 
-                if (!p.isMe) {
-                    p.run();
-                }
+//                if (player.collision)
+//                    sendMyPosition();
             }
+
+            track.run();
         }
 
         private function sendInitializeMe():void {
@@ -155,7 +130,7 @@ package com.litl.racer15
 
                 var esob:EsObject = new EsObject();
                 esob.setString(PluginConstants.ACTION, PluginConstants.UPDATE_HEADING);
-                esob.setEsObject(PluginConstants.HEADING, _myPlayer.heading);
+                esob.setEsObject(PluginConstants.HEADING, _myPlayer.esObject);
 
                 //trace("send my position: " + _myUsername);
                 sendToPlugin(esob);
@@ -185,7 +160,7 @@ package com.litl.racer15
 
             switch (action) {
                 case PluginConstants.UPDATE_HEADING:
-                    //handleUpdateHeading(esob);
+                    handleUpdateHeading(esob);
                     break;
                 case PluginConstants.PLAYER_LIST:
                     handlePlayerList(esob);
@@ -198,11 +173,9 @@ package com.litl.racer15
                     break;
                 case PluginConstants.START_GAME:
                     //handleStartGame(esob);
-                    trace("start game");
                     break;
                 case PluginConstants.GAME_OVER:
                     //handleGameOver(esob);
-                    trace("game over");
                     break;
                 case PluginConstants.ADD_PLAYER:
                     handleAddPlayer(esob);
@@ -212,11 +185,48 @@ package com.litl.racer15
                     break;
                 case PluginConstants.ERROR:
                     //handleError(esob);
-                    trace("error");
                     break;
                 default:
                     trace("Action not handled: " + action);
             }
+        }
+
+        private function handleUpdateHeading(esob:EsObject):void {
+            var ob:EsObject = esob.getEsObject(PluginConstants.HEADING);
+            var name:String = ob.getString(PluginConstants.NAME);
+
+            var heading:Heading = new Heading();
+            heading.x = ob.getNumber(PluginConstants.X);
+            heading.y = ob.getNumber(PluginConstants.Y);
+            heading.angle = ob.getNumber(PluginConstants.ANGLE);
+            heading.time = ob.getNumber(PluginConstants.ANGLE);
+            heading.speed = ob.getNumber(PluginConstants.SPEED);
+
+            var player:Player = track.playerManager.playerByName(name);
+
+            //trace(track.playerManager.playerByName(name).name);
+
+//            if (player == null) {
+//                // add the player to the stage
+//                player = new Player();
+//                player.setHeading(heading);
+//                player.name = name;
+//                track.addPlayer(player);
+//            }
+
+            //            if (name == _myUsername) {
+            //                name = "my_mirror";
+            //                player.name = "my_mirror";
+            //            }
+
+            if (!player.isMe) {
+                player.setHeading(heading);
+
+//              if (name == "my_mirror") {
+//                player.alpha = .5;
+//              }
+            }
+
         }
 
         public function destroy():void {
@@ -246,7 +256,6 @@ package com.litl.racer15
 
                 if (!p.isMe) {
                     track.addPlayer(p);
-                    trace("added player: " + p.name);
                 }
             }
             refreshPlayerList();
@@ -281,11 +290,10 @@ package com.litl.racer15
 
             if (!p.isMe) {
                 track.addPlayer(p);
-                trace("added player: " + p.name);
                 p.run();
             }
 
-            track.addPlayer(p);
+            //track.addPlayer(p);
 
             refreshPlayerList();
         }
@@ -352,48 +360,29 @@ package com.litl.racer15
             }
         }
 
-        private function handleUpdateHeading(esob:EsObject):void {
-            var ob:EsObject = esob.getEsObject(PluginConstants.HEADING);
-            var name:String = ob.getString(PluginConstants.NAME);
-
-            var heading:Heading = new Heading();
-            heading.x = ob.getNumber(PluginConstants.X);
-            heading.y = ob.getNumber(PluginConstants.Y);
-            heading.angle = ob.getNumber(PluginConstants.ANGLE);
-            heading.time = ob.getNumber(PluginConstants.ANGLE);
-            heading.speed = ob.getNumber(PluginConstants.SPEED);
-
-            var player:Player = track.playerManager.playerByName(name);
-
-            //trace(track.playerManager.playerByName(name).name);
-
-            if (player == null) {
-                // add the player to the stage
-                player = new Player();
-                player.setHeading(heading);
-                player.name = name;
-                track.addPlayer(player);
-            }
-
-//            if (name == _myUsername) {
-//                name = "my_mirror";
-//                player.name = "my_mirror";
-//            }
-
-            if (!player.isMe) {
-                player.setHeading(heading);
-                trace("set player heading: " + player.name);
-
-//                if (name == "my_mirror") {
-//                    player.alpha = .5;
-//                }
-            }
-
-        }
-
         private function onCountdownTimer(e:TimerEvent):void {
             --_secondsLeft;
             _countdownField.text = _secondsLeft.toString();
+        }
+
+        private function createWaitingField():void {
+            var tf:TextFormat = new TextFormat();
+            tf.size = 30;
+            tf.bold = true;
+            tf.font = "Arial";
+            tf.color = 0xFFFFFF;
+
+            var field:TextField = new TextField();
+            field.x = 320;
+            field.y = 150;
+            field.autoSize = TextFieldAutoSize.CENTER;
+            field.defaultTextFormat = tf;
+
+            field.text = "Waiting for players...";
+
+            _waitingField = field;
+
+            addChild(field);
         }
 
         public function set es(value:ElectroServer):void {

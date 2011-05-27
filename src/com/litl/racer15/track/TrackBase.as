@@ -32,10 +32,11 @@ package com.litl.racer15.track
             _track.cacheAsBitmap = true;
 
             _bounds = new bounds as Bitmap;
-            _bounds.visible = true;
+            _bounds.visible = false;
+            _bounds.alpha = .40;
 
             addChild(_track);
-            //addChild(_bounds);
+            addChild(_bounds);
         }
 
         public function run():void {
@@ -64,8 +65,23 @@ package com.litl.racer15.track
 
         public function addPlayer(e:Player):void {
             var player:Player = e;
-            _playerManager.addPlayer(player);
+            player.position = _playerManager.players.length;
+            player.trackBase = _bounds;
+
+            switch (_playerManager.players.length) {
+                case 0:
+                    player.x = _startingPosition.x;
+                    player.y = _startingPosition.y;
+                    break;
+                case 1:
+                    player.x = _startingPosition.x;
+                    player.y = _startingPosition.y + (player.height * 2);
+                    break;
+            }
+
             addChild(player);
+            _playerManager.addPlayer(player);
+            trace("Added Player: " + player.name);
         }
 
         public function removePlayer(e:String):void {
@@ -76,6 +92,10 @@ package com.litl.racer15.track
 
         public function get playerManager():PlayerManager {
             return _playerManager;
+        }
+
+        public function get bounds():Bitmap {
+            return _bounds;
         }
 
     }
